@@ -11,93 +11,149 @@ struct RoomView: View {
     }
 
     var body: some View {
-        Group {
+        RenoPage(title: liveRoom.name, subtitle: roomSubtitle) {
             if liveRoom.items.isEmpty {
-                ContentUnavailableView {
-                    Label("No items in \(liveRoom.name)", systemImage: "cart.badge.plus")
-                } description: {
-                    Text("Search stores, open a product page, then add it as an item or buying option.")
-                } actions: {
-                    Button("Add Item") { showingAddItem = true }
-                        .buttonStyle(.borderedProminent)
+                RenoEmptyState(
+                    icon: "cart.badge.plus",
+                    title: "Collect products for this room",
+                    message: "Search stores, save product pages, and compare buying options before purchasing.",
+                    buttonTitle: "Add Item"
+                ) {
+                    showingAddItem = true
                 }
             } else {
-                List {
-                    Section("Items") {
+                RenoSection(title: "Products", actionTitle: "Add Item", action: { showingAddItem = true }) {
+                    VStack(spacing: RenoTheme.Spacing.md) {
                         ForEach(liveRoom.items) { item in
                             NavigationLink {
                                 ItemDetailView(projectID: projectID, roomID: liveRoom.id, item: item)
                             } label: {
-                                ItemRow(projectID: projectID, roomID: liveRoom.id, item: item)
+                                ItemCard(projectID: projectID, roomID: liveRoom.id, item: item)
                             }
                             .buttonStyle(.plain)
                         }
                     }
                 }
-                .listStyle(.insetGrouped)
             }
         }
-        .navigationTitle(liveRoom.name)
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             Button {
                 showingAddItem = true
             } label: {
-                Label("Add Item", systemImage: "cart.badge.plus")
+                Image(systemName: "cart.badge.plus")
             }
+            .buttonStyle(RenoIconButtonStyle())
         }
         .sheet(isPresented: $showingAddItem) {
             NavigationStack {
                 AddItemSearchView(projectID: projectID, room: liveRoom)
             }
+            .presentationDetents([.large])
         }
+        .tint(RenoTheme.ColorToken.accent)
+    }
+
+    private var roomSubtitle: String {
+        if liveRoom.items.isEmpty { return "No products saved yet" }
+        return "\(liveRoom.items.count) products · \(liveRoom.installedItems) installed"
     }
 }
 
-struct ItemRow: View {
+struct ItemCard: View {
     @EnvironmentObject private var store: RenoFlowStore
     let projectID: UUID
     let roomID: UUID
     let item: ItemEntity
 
+    private var purchaseProgress: Double {
+        item.quantityNeeded == 0 ? 0 : min(item.quantityPurchased, item.quantityNeeded) / item.quantityNeeded
+    }
+
     var body: some View {
-        HStack(spacing: 12) {
-            KFImage(URL(string: item.imageURL ?? ""))
-                .placeholder { Color(.tertiarySystemFill).overlay(Image(systemName: "photo").foregroundStyle(.secondary)) }
-                .fade(duration: 0.2)
-                .frame(width: 58, height: 58)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-            VStack(alignment: .leading, spacing: 6) {
-                HStack(alignment: .top) {
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(item.title).font(.headline)
-                        Text("\(item.price, format: .currency(code: "USD")) each")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+        RenoCard(padding: RenoTheme.Spacing.md) {
+            HStack(alignment: .top, spacing: RenoTheme.Spacing.md) {
+                ProductImage(urlString: item.imageURL, size: 86)
+
+                VStack(alignment: .leading, spacing: RenoTheme.Spacing.sm) {
+                    HStack(alignment: .top, spacing: RenoTheme.Spacing.sm) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(item.title)
+                                .font(.system(.headline, design: .rounded).weight(.semibold))
+                                .foregroundStyle(RenoTheme.ColorToken.text)
+                                .lineLimit(2)
+                            Text("\(item.price, format: .currency(code: "USD")) each · \(item.quantityNeeded.clean) \(item.unit)")
+                                .font(.caption)
+                                .foregroundStyle(RenoTheme.ColorToken.secondaryText)
+                        }
+                        Spacer()
+                        RenoStatusChip(status: item.status)
                     }
-                    Spacer()
-                    StatusBadge(status: item.status)
+
+                    VStack(alignment: .leading, spacing: RenoTheme.Spacing.xs) {
+                        HStack {
+                            Text("\(item.quantityPurchased.clean) / \(item.quantityNeeded.clean) purchased")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(RenoTheme.ColorToken.text)
+                            Spacer()
+                            PurchaseStepper(
+                                canDecrement: item.quantityPurchased > 0,
+                                canIncrement: item.quantityPurchased < item.quantityNeeded,
+                                decrement: { store.updatePurchased(projectID: projectID, roomID: roomID, itemID: item.id, delta: -1) },
+                                increment: { store.updatePurchased(projectID: projectID, roomID: roomID, itemID: item.id, delta: 1) }
+                            )
+                        }
+                        RenoProgressBar(value: purchaseProgress, height: 7)
+                    }
                 }
-                HStack {
-                    Text("\(item.quantityPurchased.clean) / \(item.quantityNeeded.clean) purchased")
-                        .font(.caption.weight(.semibold))
-                    Spacer()
-                    Button {
-                        store.updatePurchased(projectID: projectID, roomID: roomID, itemID: item.id, delta: -1)
-                    } label: {
-                        Image(systemName: "minus.circle")
-                    }
-                    .disabled(item.quantityPurchased <= 0)
-                    Button {
-                        store.updatePurchased(projectID: projectID, roomID: roomID, itemID: item.id, delta: 1)
-                    } label: {
-                        Label("+1", systemImage: "plus.circle.fill")
-                    }
-                    .disabled(item.quantityPurchased >= item.quantityNeeded)
-                }
-                ProgressView(value: item.quantityNeeded == 0 ? 0 : item.quantityPurchased / item.quantityNeeded)
             }
         }
-        .padding(.vertical, 4)
+    }
+}
+
+struct ProductImage: View {
+    let urlString: String?
+    let size: CGFloat
+
+    var body: some View {
+        KFImage(URL(string: urlString ?? ""))
+            .placeholder {
+                RenoTheme.ColorToken.secondarySurface
+                    .overlay {
+                        Image(systemName: "photo")
+                            .font(.system(size: 20, weight: .medium))
+                            .foregroundStyle(RenoTheme.ColorToken.tertiaryText)
+                    }
+            }
+            .fade(duration: 0.2)
+            .frame(width: size, height: size)
+            .clipShape(RoundedRectangle(cornerRadius: RenoTheme.Radius.md, style: .continuous))
+    }
+}
+
+struct PurchaseStepper: View {
+    let canDecrement: Bool
+    let canIncrement: Bool
+    let decrement: () -> Void
+    let increment: () -> Void
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Button(action: decrement) {
+                Image(systemName: "minus")
+                    .frame(width: 28, height: 28)
+            }
+            .disabled(!canDecrement)
+            Button(action: increment) {
+                Image(systemName: "plus")
+                    .frame(width: 28, height: 28)
+            }
+            .disabled(!canIncrement)
+        }
+        .font(.system(size: 13, weight: .bold))
+        .foregroundStyle(RenoTheme.ColorToken.text)
+        .background(RenoTheme.ColorToken.secondarySurface, in: Capsule())
+        .opacity(canDecrement || canIncrement ? 1 : 0.45)
     }
 }
 
@@ -105,11 +161,6 @@ struct StatusBadge: View {
     let status: ItemStatus
 
     var body: some View {
-        Text(status.label)
-            .font(.caption2.weight(.semibold))
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .foregroundStyle(status.color)
-            .background(status.color.opacity(0.12), in: Capsule())
+        RenoStatusChip(status: status)
     }
 }

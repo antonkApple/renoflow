@@ -20,6 +20,7 @@
 		C0BF0FAC2FAED1B7003F27BE /* AddItemViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0BF0FAB2FAED1B7003F27BE /* AddItemViews.swift */; };
 		C0BF0FAE2FAED1B9003F27BE /* StoreViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0BF0FAD2FAED1B9003F27BE /* StoreViews.swift */; };
 		C0BF0FB02FAED1BA003F27BE /* ItemDetailViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0BF0FAF2FAED1BA003F27BE /* ItemDetailViews.swift */; };
+		C0BF0FB22FAEEAB4003F27BE /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0BF0FB12FAEEAB4003F27BE /* DesignSystem.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -37,6 +38,7 @@
 		C0BF0FAB2FAED1B7003F27BE /* AddItemViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddItemViews.swift; sourceTree = "<group>"; };
 		C0BF0FAD2FAED1B9003F27BE /* StoreViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreViews.swift; sourceTree = "<group>"; };
 		C0BF0FAF2FAED1BA003F27BE /* ItemDetailViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailViews.swift; sourceTree = "<group>"; };
+		C0BF0FB12FAEEAB4003F27BE /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -76,6 +78,7 @@
 				C0BF0FAB2FAED1B7003F27BE /* AddItemViews.swift */,
 				C0BF0FAD2FAED1B9003F27BE /* StoreViews.swift */,
 				C0BF0FAF2FAED1BA003F27BE /* ItemDetailViews.swift */,
+				C0BF0FB12FAEEAB4003F27BE /* DesignSystem.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -172,6 +175,7 @@
 				C0BF0F9E2FAED13E003F27BE /* RenoFlowStore.swift in Sources */,
 				C0BF0FAC2FAED1B7003F27BE /* AddItemViews.swift in Sources */,
 				C0BF0F982FAED0FA003F27BE /* Models.swift in Sources */,
+				C0BF0FB22FAEEAB4003F27BE /* DesignSystem.swift in Sources */,
 				C0BF0FA42FAED141003F27BE /* ImageLoading.swift in Sources */,
 				C0BF0F9A2FAED0FB003F27BE /* StorePresetProvider.swift in Sources */,
 			);

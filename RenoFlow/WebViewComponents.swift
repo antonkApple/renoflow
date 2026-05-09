@@ -10,38 +10,54 @@ struct ProductWebView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 12) {
-                Button { browser.goBack() } label: { Image(systemName: "chevron.left") }.disabled(!browser.canGoBack)
-                Button { browser.goForward() } label: { Image(systemName: "chevron.right") }.disabled(!browser.canGoForward)
-                Button { browser.reload() } label: { Image(systemName: "arrow.clockwise") }
-                Text(browser.currentURL?.absoluteString ?? url.absoluteString)
-                    .font(.caption)
-                    .lineLimit(1)
-                    .truncationMode(.middle)
-                Spacer()
-            }
-            .padding(10)
-            .background(Color(.secondarySystemBackground))
+            browserToolbar
 
             if browser.isLoading {
-                ProgressView(value: browser.estimatedProgress)
-                    .progressViewStyle(.linear)
+                RenoProgressBar(value: browser.estimatedProgress, height: 3)
             }
 
             WebView(url: url, state: browser)
+                .background(RenoTheme.ColorToken.background)
 
             Button {
                 onAddItem(browser.currentURL ?? url)
                 dismiss()
             } label: {
-                Label("Add Item", systemImage: "plus.circle.fill")
+                Label("Save Product", systemImage: "plus.circle.fill")
                     .frame(maxWidth: .infinity)
             }
-            .buttonStyle(.borderedProminent)
-            .padding()
+            .buttonStyle(RenoPrimaryButtonStyle())
+            .padding(RenoTheme.Spacing.lg)
+            .background(RenoTheme.ColorToken.background)
         }
-        .navigationTitle("Browser")
+        .background(RenoTheme.ColorToken.background.ignoresSafeArea())
+        .navigationTitle("Browse")
         .navigationBarTitleDisplayMode(.inline)
+        .tint(RenoTheme.ColorToken.accent)
+    }
+
+    private var browserToolbar: some View {
+        HStack(spacing: RenoTheme.Spacing.sm) {
+            Button { browser.goBack() } label: { Image(systemName: "chevron.left") }
+                .disabled(!browser.canGoBack)
+            Button { browser.goForward() } label: { Image(systemName: "chevron.right") }
+                .disabled(!browser.canGoForward)
+            Button { browser.reload() } label: { Image(systemName: "arrow.clockwise") }
+            Text(browser.currentURL?.absoluteString ?? url.absoluteString)
+                .font(.caption)
+                .foregroundStyle(RenoTheme.ColorToken.secondaryText)
+                .lineLimit(1)
+                .truncationMode(.middle)
+                .padding(.horizontal, RenoTheme.Spacing.sm)
+                .padding(.vertical, RenoTheme.Spacing.xs)
+                .background(RenoTheme.ColorToken.secondarySurface, in: Capsule())
+            Spacer(minLength: 0)
+        }
+        .font(.system(size: 15, weight: .semibold))
+        .foregroundStyle(RenoTheme.ColorToken.text)
+        .padding(.horizontal, RenoTheme.Spacing.lg)
+        .padding(.vertical, RenoTheme.Spacing.md)
+        .background(RenoTheme.ColorToken.background)
     }
 }
 

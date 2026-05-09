@@ -17,10 +17,12 @@ struct ProjectView: View {
             if let project {
                 projectContent(project)
             } else {
-                ContentUnavailableView("Project not found", systemImage: "folder.badge.questionmark")
+                RenoPage(title: "Project") {
+                    RenoEmptyState(icon: "folder.badge.questionmark", title: "Project not found", message: "This project is no longer available.")
+                }
             }
         }
-        .navigationTitle(project?.name ?? "Project")
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
@@ -37,6 +39,7 @@ struct ProjectView: View {
                 } label: {
                     Image(systemName: "plus")
                 }
+                .buttonStyle(RenoIconButtonStyle())
                 .disabled(project == nil)
             }
         }
@@ -54,47 +57,25 @@ struct ProjectView: View {
                 NavigationStack {
                     AddItemRoomPickerView(project: project)
                 }
+                .presentationDetents([.large])
             }
         }
+        .tint(RenoTheme.ColorToken.accent)
     }
 
-    @ViewBuilder
     private func projectContent(_ project: ProjectEntity) -> some View {
-        VStack(spacing: 0) {
+        RenoPage(title: project.name) {
             ProjectHeader(project: project) {
                 showingAddItem = true
             }
-            Picker("View", selection: $selection) {
+
+            RenoSegmentedPicker(selection: $selection) {
                 Text("Rooms").tag(0)
                 Text("To Buy").tag(1)
             }
-            .pickerStyle(.segmented)
-            .padding([.horizontal, .top])
 
             if selection == 0 {
-                if project.rooms.isEmpty {
-                    ContentUnavailableView {
-                        Label("No rooms yet", systemImage: "square.grid.2x2")
-                    } description: {
-                        Text("Create a room, then add products to track what you need to buy.")
-                    } actions: {
-                        Button("Add Room") { showingAddRoom = true }
-                            .buttonStyle(.borderedProminent)
-                    }
-                } else {
-                    List {
-                        Section("Rooms") {
-                            ForEach(project.rooms) { room in
-                                NavigationLink {
-                                    RoomView(projectID: project.id, room: room)
-                                } label: {
-                                    RoomRow(room: room)
-                                }
-                            }
-                        }
-                    }
-                    .listStyle(.insetGrouped)
-                }
+                RoomsCollection(project: project, onAddRoom: { showingAddRoom = true })
             } else {
                 ShoppingListView(project: project)
             }
@@ -107,24 +88,23 @@ struct ProjectHeader: View {
     let onAddItem: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                MetricBlock(title: "Progress", value: project.progress.formatted(.percent.precision(.fractionLength(0))))
-                MetricBlock(title: "Spent", value: project.totalSpent.formatted(.currency(code: "USD")))
-                MetricBlock(title: "Budget", value: project.totalBudget.formatted(.currency(code: "USD")))
+        RenoCard {
+            VStack(alignment: .leading, spacing: RenoTheme.Spacing.lg) {
+                HStack(spacing: RenoTheme.Spacing.md) {
+                    MetricBlock(title: "Progress", value: project.progress.formatted(.percent.precision(.fractionLength(0))))
+                    MetricBlock(title: "Spent", value: project.totalSpent.formatted(.currency(code: "USD")))
+                    MetricBlock(title: "Budget", value: project.totalBudget.formatted(.currency(code: "USD")))
+                }
+                RenoProgressBar(value: project.progress)
+                Button {
+                    onAddItem()
+                } label: {
+                    Label("Add Item", systemImage: "cart.badge.plus")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(RenoPrimaryButtonStyle())
             }
-            ProgressView(value: project.progress)
-            Button {
-                onAddItem()
-            } label: {
-                Label("Add Item", systemImage: "cart.badge.plus")
-                    .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.large)
         }
-        .padding()
-        .background(Color(.secondarySystemBackground))
     }
 }
 
@@ -133,11 +113,47 @@ struct MetricBlock: View {
     let value: String
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(title).font(.caption).foregroundStyle(.secondary)
-            Text(value).font(.headline)
+        VStack(alignment: .leading, spacing: RenoTheme.Spacing.xs) {
+            Text(title)
+                .font(.caption)
+                .foregroundStyle(RenoTheme.ColorToken.tertiaryText)
+            Text(value)
+                .font(.system(.headline, design: .rounded).weight(.semibold))
+                .foregroundStyle(RenoTheme.ColorToken.text)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+struct RoomsCollection: View {
+    let project: ProjectEntity
+    let onAddRoom: () -> Void
+
+    var body: some View {
+        RenoSection(title: "Rooms", actionTitle: "Add Room", action: onAddRoom) {
+            if project.rooms.isEmpty {
+                RenoEmptyState(
+                    icon: "square.grid.2x2",
+                    title: "No rooms yet",
+                    message: "Create a room, then collect products and track purchase progress.",
+                    buttonTitle: "Add Room",
+                    action: onAddRoom
+                )
+            } else {
+                VStack(spacing: RenoTheme.Spacing.md) {
+                    ForEach(project.rooms) { room in
+                        NavigationLink {
+                            RoomView(projectID: project.id, room: room)
+                        } label: {
+                            RoomRow(room: room)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -145,28 +161,36 @@ struct RoomRow: View {
     let room: RoomEntity
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .firstTextBaseline) {
-                Text(room.name).font(.headline)
-                Spacer()
-                Text("\(room.items.count) items")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-            HStack {
-                Label("\(room.installedItems)/\(room.totalItems) installed", systemImage: "checkmark.circle")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                Spacer()
-                if room.items.isEmpty {
-                    Text("Tap to add products")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.blue)
+        RenoCard {
+            VStack(alignment: .leading, spacing: RenoTheme.Spacing.md) {
+                HStack(alignment: .top) {
+                    VStack(alignment: .leading, spacing: RenoTheme.Spacing.xs) {
+                        Text(room.name)
+                            .font(.system(.title3, design: .rounded).weight(.semibold))
+                            .foregroundStyle(RenoTheme.ColorToken.text)
+                        Text(room.items.isEmpty ? "Ready for product ideas" : "\(room.items.count) products")
+                            .font(.subheadline)
+                            .foregroundStyle(RenoTheme.ColorToken.secondaryText)
+                    }
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundStyle(RenoTheme.ColorToken.tertiaryText)
+                }
+                RenoProgressBar(value: room.progress, height: 7)
+                HStack {
+                    Label("\(room.installedItems)/\(room.totalItems) installed", systemImage: "checkmark.circle")
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(RenoTheme.ColorToken.secondaryText)
+                    Spacer()
+                    if room.items.isEmpty {
+                        Text("Add products")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(RenoTheme.ColorToken.accent)
+                    }
                 }
             }
-            ProgressView(value: room.progress)
         }
-        .padding(.vertical, 8)
     }
 }
 
@@ -199,44 +223,63 @@ struct ShoppingListView: View {
     }
 
     var body: some View {
-        List {
-            Section {
-                Picker("Filter", selection: $filter) {
-                    ForEach(ShoppingFilter.allCases) { filter in Text(filter.label).tag(filter) }
+        VStack(alignment: .leading, spacing: RenoTheme.Spacing.lg) {
+            RenoSegmentedPicker(selection: $filter) {
+                ForEach(ShoppingFilter.allCases) { filter in
+                    Text(filter.label).tag(filter)
                 }
-                .pickerStyle(.segmented)
             }
 
             if rows.isEmpty {
-                ContentUnavailableView {
-                    Label("Nothing to buy yet", systemImage: "cart")
-                } description: {
-                    Text("Add items from a room or use the Add Item button on the project screen.")
-                }
+                RenoEmptyState(
+                    icon: "cart",
+                    title: "Nothing to buy yet",
+                    message: "Save products from stores into rooms, then RenoFlo will show what is still missing."
+                )
             } else {
-                Section("Items") {
-                    ForEach(rows, id: \.item.id) { row in
-                        VStack(alignment: .leading, spacing: 6) {
-                            HStack {
-                                Text(row.item.title).font(.headline)
-                                Spacer()
-                                Text("\(row.item.quantityRemaining.clean) \(row.item.unit) left")
-                                    .font(.subheadline.weight(.semibold))
-                            }
-                            HStack {
-                                Text(row.room.name)
-                                if let store = row.item.preferredStoreName { Text(store) }
-                                Spacer()
-                                Text(row.item.price, format: .currency(code: "USD"))
-                            }
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                RenoSection(title: "Items") {
+                    VStack(spacing: RenoTheme.Spacing.md) {
+                        ForEach(rows, id: \.item.id) { row in
+                            ShoppingListRow(room: row.room, item: row.item)
                         }
-                        .padding(.vertical, 4)
                     }
                 }
             }
         }
-        .listStyle(.insetGrouped)
     }
 }
+struct ShoppingListRow: View {
+    let room: RoomEntity
+    let item: ItemEntity
+
+    var body: some View {
+        RenoCard {
+            VStack(alignment: .leading, spacing: RenoTheme.Spacing.sm) {
+                HStack(alignment: .top) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(item.title)
+                            .font(.system(.headline, design: .rounded).weight(.semibold))
+                            .foregroundStyle(RenoTheme.ColorToken.text)
+                        Text(room.name)
+                            .font(.caption)
+                            .foregroundStyle(RenoTheme.ColorToken.secondaryText)
+                    }
+                    Spacer()
+                    Text("\(item.quantityRemaining.clean) \(item.unit)")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(RenoTheme.ColorToken.accent)
+                }
+                HStack {
+                    if let store = item.preferredStoreName {
+                        Label(store, systemImage: "storefront")
+                    }
+                    Spacer()
+                    Text(item.price, format: .currency(code: "USD"))
+                }
+                .font(.caption.weight(.medium))
+                .foregroundStyle(RenoTheme.ColorToken.secondaryText)
+            }
+        }
+    }
+}
+
