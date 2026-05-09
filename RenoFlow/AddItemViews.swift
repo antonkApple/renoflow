@@ -1,5 +1,47 @@
 import SwiftUI
 
+struct AddItemRoomPickerView: View {
+    let project: ProjectEntity
+    @Environment(\.dismiss) private var dismiss
+    @State private var selectedRoomID: UUID?
+
+    private var selectedRoom: RoomEntity? {
+        project.rooms.first(where: { $0.id == selectedRoomID }) ?? project.rooms.first
+    }
+
+    var body: some View {
+        Form {
+            Section("Where should this item go?") {
+                Picker("Room", selection: Binding(get: {
+                    selectedRoom?.id
+                }, set: { newValue in
+                    selectedRoomID = newValue
+                })) {
+                    ForEach(project.rooms) { room in
+                        Text(room.name).tag(Optional(room.id))
+                    }
+                }
+            }
+            Section {
+                if let selectedRoom {
+                    NavigationLink {
+                        AddItemSearchView(projectID: project.id, room: selectedRoom)
+                    } label: {
+                        Label("Search Products", systemImage: "magnifyingglass")
+                    }
+                }
+            }
+        }
+        .navigationTitle("Add Item")
+        .toolbar {
+            Button("Done") { dismiss() }
+        }
+        .onAppear {
+            selectedRoomID = selectedRoomID ?? project.rooms.first?.id
+        }
+    }
+}
+
 struct AddItemSearchView: View {
     @EnvironmentObject private var store: RenoFlowStore
     @Environment(\.dismiss) private var dismiss

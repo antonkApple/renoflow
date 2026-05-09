@@ -36,9 +36,7 @@ struct HomeView: View {
             }
         }
         .navigationDestination(for: UUID.self) { projectID in
-            if let project = store.projects.first(where: { $0.id == projectID }) {
-                ProjectView(project: project)
-            }
+            ProjectView(projectID: projectID)
         }
         .alert("Add Project", isPresented: $showingAddProject) {
             TextField("Project name", text: $newProjectName)

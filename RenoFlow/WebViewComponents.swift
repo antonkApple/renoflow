@@ -5,7 +5,7 @@ import WebKit
 struct ProductWebView: View {
     let url: URL
     let onAddItem: (URL) -> Void
-    @State private var browser = BrowserState()
+    @StateObject private var browser = BrowserState()
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -22,7 +22,14 @@ struct ProductWebView: View {
             }
             .padding(10)
             .background(Color(.secondarySystemBackground))
+
+            if browser.isLoading {
+                ProgressView(value: browser.estimatedProgress)
+                    .progressViewStyle(.linear)
+            }
+
             WebView(url: url, state: browser)
+
             Button {
                 onAddItem(browser.currentURL ?? url)
                 dismiss()
@@ -44,18 +51,43 @@ final class BrowserState: NSObject, ObservableObject, WKNavigationDelegate {
     @Published var currentURL: URL?
     @Published var canGoBack = false
     @Published var canGoForward = false
+    @Published var isLoading = false
+    @Published var estimatedProgress = 0.0
+
+    private var progressObservation: NSKeyValueObservation?
+    private var loadingObservation: NSKeyValueObservation?
+
+    func attach(_ webView: WKWebView) {
+        self.webView = webView
+        update(webView)
+        progressObservation = webView.observe(\.estimatedProgress, options: [.initial, .new]) { [weak self] webView, _ in
+            Task { @MainActor in
+                self?.estimatedProgress = webView.estimatedProgress
+            }
+        }
+        loadingObservation = webView.observe(\.isLoading, options: [.initial, .new]) { [weak self] webView, _ in
+            Task { @MainActor in
+                self?.isLoading = webView.isLoading
+            }
+        }
+    }
 
     func goBack() { webView?.goBack() }
     func goForward() { webView?.goForward() }
     func reload() { webView?.reload() }
 
+    func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) { update(webView) }
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) { update(webView) }
     func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) { update(webView) }
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) { update(webView) }
+    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) { update(webView) }
 
     private func update(_ webView: WKWebView) {
         currentURL = webView.url
         canGoBack = webView.canGoBack
         canGoForward = webView.canGoForward
+        isLoading = webView.isLoading
+        estimatedProgress = webView.estimatedProgress
     }
 }
 
@@ -64,12 +96,40 @@ struct WebView: UIViewRepresentable {
     let state: BrowserState
 
     func makeUIView(context: Context) -> WKWebView {
-        let webView = WKWebView()
+        let webView = WKWebView(frame: .zero, configuration: WebViewConfigurationFactory.makeConfiguration())
         webView.navigationDelegate = state
-        state.webView = webView
-        webView.load(URLRequest(url: url))
+        webView.allowsBackForwardNavigationGestures = true
+        webView.isOpaque = false
+        state.attach(webView)
+        webView.load(URLRequest(url: url, cachePolicy: .returnCacheDataElseLoad, timeoutInterval: 20))
         return webView
     }
 
     func updateUIView(_ uiView: WKWebView, context: Context) {}
+}
+
+@MainActor
+enum WebViewPrewarmer {
+    private static var prewarmedWebView: WKWebView?
+
+    static func prewarm() {
+        guard prewarmedWebView == nil else { return }
+        let webView = WKWebView(frame: .zero, configuration: WebViewConfigurationFactory.makeConfiguration())
+        prewarmedWebView = webView
+        webView.loadHTMLString("<html><body></body></html>", baseURL: URL(string: "https://renoflow.local"))
+    }
+}
+
+enum WebViewConfigurationFactory {
+    private static let processPool = WKProcessPool()
+
+    static func makeConfiguration() -> WKWebViewConfiguration {
+        let configuration = WKWebViewConfiguration()
+        configuration.processPool = processPool
+        configuration.websiteDataStore = .default()
+        configuration.allowsInlineMediaPlayback = true
+        configuration.preferences.javaScriptCanOpenWindowsAutomatically = false
+        configuration.defaultWebpagePreferences.allowsContentJavaScript = true
+        return configuration
+    }
 }

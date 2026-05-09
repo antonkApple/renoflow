@@ -11,16 +11,30 @@ struct RoomView: View {
     }
 
     var body: some View {
-        List {
-            Section {
-                ForEach(liveRoom.items) { item in
-                    NavigationLink {
-                        ItemDetailView(projectID: projectID, roomID: liveRoom.id, item: item)
-                    } label: {
-                        ItemRow(projectID: projectID, roomID: liveRoom.id, item: item)
-                    }
-                    .buttonStyle(.plain)
+        Group {
+            if liveRoom.items.isEmpty {
+                ContentUnavailableView {
+                    Label("No items in \(liveRoom.name)", systemImage: "cart.badge.plus")
+                } description: {
+                    Text("Search stores, open a product page, then add it as an item or buying option.")
+                } actions: {
+                    Button("Add Item") { showingAddItem = true }
+                        .buttonStyle(.borderedProminent)
                 }
+            } else {
+                List {
+                    Section("Items") {
+                        ForEach(liveRoom.items) { item in
+                            NavigationLink {
+                                ItemDetailView(projectID: projectID, roomID: liveRoom.id, item: item)
+                            } label: {
+                                ItemRow(projectID: projectID, roomID: liveRoom.id, item: item)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
+                .listStyle(.insetGrouped)
             }
         }
         .navigationTitle(liveRoom.name)
@@ -28,7 +42,7 @@ struct RoomView: View {
             Button {
                 showingAddItem = true
             } label: {
-                Label("Add Item", systemImage: "plus")
+                Label("Add Item", systemImage: "cart.badge.plus")
             }
         }
         .sheet(isPresented: $showingAddItem) {

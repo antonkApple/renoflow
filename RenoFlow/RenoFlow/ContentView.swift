@@ -6,7 +6,10 @@ struct ContentView: View {
     var body: some View {
         NavigationStack {
             HomeView()
-                .environmentObject(store)
+        }
+        .environmentObject(store)
+        .task {
+            WebViewPrewarmer.prewarm()
         }
     }
 }
