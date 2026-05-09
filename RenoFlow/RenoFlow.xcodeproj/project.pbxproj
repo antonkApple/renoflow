@@ -6,8 +6,37 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		C0BF0F982FAED0FA003F27BE /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0BF0F972FAED0FA003F27BE /* Models.swift */; };
+		C0BF0F9A2FAED0FB003F27BE /* StorePresetProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0BF0F992FAED0FB003F27BE /* StorePresetProvider.swift */; };
+		C0BF0F9C2FAED0FC003F27BE /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0BF0F9B2FAED0FC003F27BE /* Extensions.swift */; };
+		C0BF0F9E2FAED13E003F27BE /* RenoFlowStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0BF0F9D2FAED13E003F27BE /* RenoFlowStore.swift */; };
+		C0BF0FA02FAED140003F27BE /* ItemParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0BF0F9F2FAED140003F27BE /* ItemParser.swift */; };
+		C0BF0FA22FAED140003F27BE /* WebViewComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0BF0FA12FAED140003F27BE /* WebViewComponents.swift */; };
+		C0BF0FA42FAED141003F27BE /* ImageLoading.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0BF0FA32FAED141003F27BE /* ImageLoading.swift */; };
+		C0BF0FA62FAED177003F27BE /* HomeViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0BF0FA52FAED177003F27BE /* HomeViews.swift */; };
+		C0BF0FA82FAED179003F27BE /* ProjectViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0BF0FA72FAED179003F27BE /* ProjectViews.swift */; };
+		C0BF0FAA2FAED17A003F27BE /* RoomViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0BF0FA92FAED17A003F27BE /* RoomViews.swift */; };
+		C0BF0FAC2FAED1B7003F27BE /* AddItemViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0BF0FAB2FAED1B7003F27BE /* AddItemViews.swift */; };
+		C0BF0FAE2FAED1B9003F27BE /* StoreViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0BF0FAD2FAED1B9003F27BE /* StoreViews.swift */; };
+		C0BF0FB02FAED1BA003F27BE /* ItemDetailViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0BF0FAF2FAED1BA003F27BE /* ItemDetailViews.swift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		C0BF0F6A2FAE1C07003F27BE /* renoflow.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = renoflow.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C0BF0F972FAED0FA003F27BE /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		C0BF0F992FAED0FB003F27BE /* StorePresetProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorePresetProvider.swift; sourceTree = "<group>"; };
+		C0BF0F9B2FAED0FC003F27BE /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		C0BF0F9D2FAED13E003F27BE /* RenoFlowStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenoFlowStore.swift; sourceTree = "<group>"; };
+		C0BF0F9F2FAED140003F27BE /* ItemParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemParser.swift; sourceTree = "<group>"; };
+		C0BF0FA12FAED140003F27BE /* WebViewComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewComponents.swift; sourceTree = "<group>"; };
+		C0BF0FA32FAED141003F27BE /* ImageLoading.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageLoading.swift; sourceTree = "<group>"; };
+		C0BF0FA52FAED177003F27BE /* HomeViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViews.swift; sourceTree = "<group>"; };
+		C0BF0FA72FAED179003F27BE /* ProjectViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectViews.swift; sourceTree = "<group>"; };
+		C0BF0FA92FAED17A003F27BE /* RoomViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoomViews.swift; sourceTree = "<group>"; };
+		C0BF0FAB2FAED1B7003F27BE /* AddItemViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddItemViews.swift; sourceTree = "<group>"; };
+		C0BF0FAD2FAED1B9003F27BE /* StoreViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreViews.swift; sourceTree = "<group>"; };
+		C0BF0FAF2FAED1BA003F27BE /* ItemDetailViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailViews.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -34,6 +63,19 @@
 			children = (
 				C0BF0F6C2FAE1C07003F27BE /* renoflow */,
 				C0BF0F6B2FAE1C07003F27BE /* Products */,
+				C0BF0F972FAED0FA003F27BE /* Models.swift */,
+				C0BF0F992FAED0FB003F27BE /* StorePresetProvider.swift */,
+				C0BF0F9B2FAED0FC003F27BE /* Extensions.swift */,
+				C0BF0F9D2FAED13E003F27BE /* RenoFlowStore.swift */,
+				C0BF0F9F2FAED140003F27BE /* ItemParser.swift */,
+				C0BF0FA12FAED140003F27BE /* WebViewComponents.swift */,
+				C0BF0FA32FAED141003F27BE /* ImageLoading.swift */,
+				C0BF0FA52FAED177003F27BE /* HomeViews.swift */,
+				C0BF0FA72FAED179003F27BE /* ProjectViews.swift */,
+				C0BF0FA92FAED17A003F27BE /* RoomViews.swift */,
+				C0BF0FAB2FAED1B7003F27BE /* AddItemViews.swift */,
+				C0BF0FAD2FAED1B9003F27BE /* StoreViews.swift */,
+				C0BF0FAF2FAED1BA003F27BE /* ItemDetailViews.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -119,6 +161,19 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C0BF0F9C2FAED0FC003F27BE /* Extensions.swift in Sources */,
+				C0BF0FAA2FAED17A003F27BE /* RoomViews.swift in Sources */,
+				C0BF0FA62FAED177003F27BE /* HomeViews.swift in Sources */,
+				C0BF0FA82FAED179003F27BE /* ProjectViews.swift in Sources */,
+				C0BF0FAE2FAED1B9003F27BE /* StoreViews.swift in Sources */,
+				C0BF0FA22FAED140003F27BE /* WebViewComponents.swift in Sources */,
+				C0BF0FB02FAED1BA003F27BE /* ItemDetailViews.swift in Sources */,
+				C0BF0FA02FAED140003F27BE /* ItemParser.swift in Sources */,
+				C0BF0F9E2FAED13E003F27BE /* RenoFlowStore.swift in Sources */,
+				C0BF0FAC2FAED1B7003F27BE /* AddItemViews.swift in Sources */,
+				C0BF0F982FAED0FA003F27BE /* Models.swift in Sources */,
+				C0BF0FA42FAED141003F27BE /* ImageLoading.swift in Sources */,
+				C0BF0F9A2FAED0FB003F27BE /* StorePresetProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -1,21 +1,13 @@
-//
-//  ContentView.swift
-//  renoflow
-//
-//  Created by Анна Кривчикова on 8.05.26.
-//
-
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject private var store = RenoFlowStore()
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        NavigationStack {
+            HomeView()
+                .environmentObject(store)
         }
-        .padding()
     }
 }
 
